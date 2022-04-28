@@ -12,7 +12,7 @@ import {
 	TextDocumentSyncKind,
 	InitializeResult
 } from 'vscode-languageserver/node';
-import * as Tokens from './tokens';
+import { EXT_TOKEN_MAP } from './tokens';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
@@ -101,7 +101,7 @@ connection.onDidChangeConfiguration(change => {
 	}
 
 	// Revalidate all open text documents
-	documents.all().forEach(validateTextDocument);
+	// documents.all().forEach(validateTextDocument);
 });
 
 function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
@@ -133,27 +133,25 @@ documents.onDidChangeContent(change => {
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
 	const settings = await getDocumentSettings(textDocument.uri);
-
+	let problems = 0;
+	let m: RegExpExecArray | null;
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	const text = textDocument.getText();
-
+	const pattern = EXT_TOKEN_MAP[1].signature;
 
 	// iterate over tokens in tokens and set the meta related info based on constructed types from lib itself
-	const pattern = Tokens.AST_PARTIAL_REGGIE;
-	let m: RegExpExecArray | null;
 
-	let problems = 0;
 	const diagnostics: Diagnostic[] = [];
 	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
 		problems++;
 		const diagnostic: Diagnostic = {
-			severity: DiagnosticSeverity.Hint,
+			severity: DiagnosticSeverity.Information,
 			range: {
 				start: textDocument.positionAt(m.index),
 				end: textDocument.positionAt(m.index + m[0].length)
 			},
-			message: `${m[0]} is all uppercase.`,
-			source: 'html-chunk-loader lsp'
+			message: EXT_TOKEN_MAP[1].diagnosticName,
+			source: `${EXT_TOKEN_MAP[1].signature}`
 		};
 		if (hasDiagnosticRelatedInformationCapability) {
 			diagnostic.relatedInformation = [
@@ -162,14 +160,14 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 						uri: textDocument.uri,
 						range: Object.assign({}, diagnostic.range)
 					},
-					message: 'Spelling matters'
+					message: EXT_TOKEN_MAP[1].diagnosticMsg
 				},
 				{
 					location: {
 						uri: textDocument.uri,
 						range: Object.assign({}, diagnostic.range)
 					},
-					message: 'Particularly for names'
+					message: EXT_TOKEN_MAP[1].detailMsg
 				}
 			];
 		}
@@ -183,6 +181,10 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 connection.onDidChangeWatchedFiles(_change => {
 	// Monitored files have change in VSCode
 	connection.console.log('We received an file change event');
+});
+
+connection.onDidOpenTextDocument( (p) => {
+	connection.console.log(p.textDocument.text);
 });
 
 // This handler provides the initial list of the completion items.

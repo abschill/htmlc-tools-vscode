@@ -1,24 +1,31 @@
-export const AST_DT = '@';
-export const AST_EQ = '=';
-export const SELF = '_';
-export const AST_KNO = '(';
-export const AST_KNC = ')';
-export const AST_TNO = '{';
-export const AST_TNC = '}';
-export const AST_KEYSELF = `${AST_TNO}${SELF}${AST_TNC}`;
-export const AST_RENDER_SIGNATURE = `${AST_DT}render`;
-export const AST_PARTIAL_SIGNATURE = `${AST_DT}partial`;
-export const AST_LOOP_SIGNATURE = `${AST_DT}loop`;
-export const AST_PARTIAL_REGGIE = /<!--@partial=\w+[\w|\d|/\\]*-->/gi;
-export const AST_RENDER_REGGIE = /<!--@render=\w+.?[\w|\d|.]+-->/gi;
-export const AST_LOOP_OPEN_REGGIE = /<!--@loop\(\w+\){/gi;
-export const AST_OPEN_SCOPE = '<!--';
-export const AST_CLOSE_SCOPE = '-->';
-export const AST_CLOSE_LOOP_SCOPE = AST_TNC + AST_CLOSE_SCOPE;
-export const AST_NESTED_KEYPARSE = /{\w+.?[\w|\d]*}/gi;
-
-
-type AST_LSPEntry = {
-	matcher: string | RegExp;
-	tooltip: string;
+import {
+    AST_CLOSE_SCOPE,
+    AST_RENDER_SIGNATURE,
+    AST_PARTIAL_SIGNATURE,
+    AST_LOOP_SIGNATURE,
+    AST_RENDER_REGGIE,
+    AST_PARTIAL_REGGIE,
+    AST_LOOP_OPEN_REGGIE,
+} from 'html-chunk-loader/lib/compiler/parser/constants';
+export * from 'html-chunk-loader/lib/compiler/parser/constants.js';
+export type LintableToken = {
+	signature: RegExp;
+	diagnosticMsg: string;
+	diagnosticName: string;
+	detailMsg: string;
 }
+
+export const EXT_TOKEN_MAP: LintableToken[] = [
+	{
+		signature: AST_LOOP_OPEN_REGGIE,
+		diagnosticName: 'Loop Signature',
+		diagnosticMsg: 'html-chunk-loader iterator',
+		detailMsg: 'gives you the ability to iterate over variables defined in a template'
+	},
+	{
+		signature: AST_RENDER_REGGIE,
+		diagnosticName: 'Render Matcher',
+		diagnosticMsg: 'html-chunk-loader value insertion directive(regex)',
+		detailMsg: 'loads a variable from your runtime/inline configuration to the template'
+	}
+];
