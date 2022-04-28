@@ -12,7 +12,7 @@ import {
 	TextDocumentSyncKind,
 	InitializeResult
 } from 'vscode-languageserver/node';
-
+import * as Tokens from './tokens';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
@@ -136,7 +136,10 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	const text = textDocument.getText();
-	const pattern = /\b[A-Z]{2,}\b/g;
+
+
+	// iterate over tokens in tokens and set the meta related info based on constructed types from lib itself
+	const pattern = Tokens.AST_PARTIAL_REGGIE;
 	let m: RegExpExecArray | null;
 
 	let problems = 0;
@@ -144,13 +147,13 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
 		problems++;
 		const diagnostic: Diagnostic = {
-			severity: DiagnosticSeverity.Warning,
+			severity: DiagnosticSeverity.Hint,
 			range: {
 				start: textDocument.positionAt(m.index),
 				end: textDocument.positionAt(m.index + m[0].length)
 			},
 			message: `${m[0]} is all uppercase.`,
-			source: 'ex'
+			source: 'html-chunk-loader lsp'
 		};
 		if (hasDiagnosticRelatedInformationCapability) {
 			diagnostic.relatedInformation = [

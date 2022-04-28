@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_1 = require("vscode-languageserver/node");
+const Tokens = require("./tokens");
 const vscode_languageserver_textdocument_1 = require("vscode-languageserver-textdocument");
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -94,20 +95,21 @@ async function validateTextDocument(textDocument) {
     const settings = await getDocumentSettings(textDocument.uri);
     // The validator creates diagnostics for all uppercase words length 2 and more
     const text = textDocument.getText();
-    const pattern = /\b[A-Z]{2,}\b/g;
+    // iterate over tokens in tokens and set the meta related info based on constructed types from lib itself
+    const pattern = Tokens.AST_PARTIAL_REGGIE;
     let m;
     let problems = 0;
     const diagnostics = [];
     while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
         problems++;
         const diagnostic = {
-            severity: node_1.DiagnosticSeverity.Warning,
+            severity: node_1.DiagnosticSeverity.Hint,
             range: {
                 start: textDocument.positionAt(m.index),
                 end: textDocument.positionAt(m.index + m[0].length)
             },
             message: `${m[0]} is all uppercase.`,
-            source: 'ex'
+            source: 'html-chunk-loader lsp'
         };
         if (hasDiagnosticRelatedInformationCapability) {
             diagnostic.relatedInformation = [
