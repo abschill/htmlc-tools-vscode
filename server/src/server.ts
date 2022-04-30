@@ -12,7 +12,8 @@ import {
 	TextDocumentSyncKind,
 	InitializeResult
 } from 'vscode-languageserver/node';
-import { EXT_TOKEN_MAP } from './tokens';
+import { defaultSettings, ExampleSettings } from './include/types';
+import { EXT_TOKEN_MAP } from './include/tokens';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
@@ -76,35 +77,32 @@ connection.onInitialized(() => {
 	}
 });
 
-// The example settings
-interface ExampleSettings {
-	maxNumberOfProblems: number;
-}
 
-// The global settings, used when the `workspace/configuration` request is not supported by the client.
-// Please note that this is not the case when using this server with the client provided in this example
-// but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
 let globalSettings: ExampleSettings = defaultSettings;
 
-// Cache the settings of all open documents
+// Cache the settings of all open documents to be less thicc ram
 const documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
 
 connection.onDidChangeConfiguration(change => {
 	if (hasConfigurationCapability) {
-		// Reset all cached document settings
+		// clear cached settings
 		documentSettings.clear();
-	} else {
+	}
+	else {
 		globalSettings = <ExampleSettings>(
 			(change.settings.languageServerExample || defaultSettings)
 		);
 	}
 
 	// Revalidate all open text documents
-	// documents.all().forEach(validateTextDocument);
+	documents.all().forEach(validateTextDocument);
 });
 
-function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
+
+// takes the context document in from the uri argument and gets the settings interface from above
+function getDocumentSettings(
+	resource: string
+): Thenable<ExampleSettings> {
 	if (!hasConfigurationCapability) {
 		return Promise.resolve(globalSettings);
 	}
@@ -119,73 +117,61 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
 	return result;
 }
 
-// Only keep settings for open documents
-documents.onDidClose(e => {
-	documentSettings.delete(e.document.uri);
-});
+// close when done
+documents.onDidClose(e => documentSettings.delete(e.document.uri));
 
-// The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent(change => {
-	validateTextDocument(change.document);
-});
+documents.onDidChangeContent(change => validateTextDocument(change.document));
 
-async function validateTextDocument(textDocument: TextDocument): Promise<void> {
+async function validateTextDocument(
+	textDocument: TextDocument
+): Promise<void> {
 	// In this simple example we get the settings for every validate run.
 	const settings = await getDocumentSettings(textDocument.uri);
 	let problems = 0;
-	let m: RegExpExecArray | null;
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	const text = textDocument.getText();
-	const pattern = EXT_TOKEN_MAP[1].signature;
-
 	// iterate over tokens in tokens and set the meta related info based on constructed types from lib itself
 
 	const diagnostics: Diagnostic[] = [];
-	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
-		problems++;
-		const diagnostic: Diagnostic = {
-			severity: DiagnosticSeverity.Information,
-			range: {
-				start: textDocument.positionAt(m.index),
-				end: textDocument.positionAt(m.index + m[0].length)
-			},
-			message: EXT_TOKEN_MAP[1].diagnosticName,
-			source: `${EXT_TOKEN_MAP[1].signature}`
-		};
-		if (hasDiagnosticRelatedInformationCapability) {
-			diagnostic.relatedInformation = [
-				{
-					location: {
-						uri: textDocument.uri,
-						range: Object.assign({}, diagnostic.range)
-					},
-					message: EXT_TOKEN_MAP[1].diagnosticMsg
+	for(const token of EXT_TOKEN_MAP) {
+		const pattern = token.signature;
+		const match = pattern.exec(text);
+		if(match && match.length > 0 && problems < settings.maxNumberOfProblems) {
+			problems++;
+			const diagnostic: Diagnostic = {
+				severity: DiagnosticSeverity.Information,
+				range: {
+					start: textDocument.positionAt(match.index),
+					end: textDocument.positionAt(match.index + match[0].length)
 				},
-				{
-					location: {
-						uri: textDocument.uri,
-						range: Object.assign({}, diagnostic.range)
+				message: token.diagnosticName,
+				source: `${token.signature}`
+			};
+				if (hasDiagnosticRelatedInformationCapability) {
+				diagnostic.relatedInformation = [
+					{
+						location: {
+							uri: textDocument.uri,
+							range: Object.assign({}, diagnostic.range)
+						},
+						message: token.diagnosticMsg
 					},
-					message: EXT_TOKEN_MAP[1].detailMsg
-				}
-			];
+					{
+						location: {
+							uri: textDocument.uri,
+							range: Object.assign({}, diagnostic.range)
+						},
+						message: token.detailMsg
+					}
+				];
 		}
 		diagnostics.push(diagnostic);
 	}
-
-	// Send the computed diagnostics to VSCode.
+	}
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+
 }
-
-connection.onDidChangeWatchedFiles(_change => {
-	// Monitored files have change in VSCode
-	connection.console.log('We received an file change event');
-});
-
-connection.onDidOpenTextDocument( (p) => {
-	connection.console.log(p.textDocument.text);
-});
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
@@ -212,6 +198,7 @@ connection.onCompletion(
 // the completion list.
 connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
+		console.log(item);
 		if (item.data === 1) {
 			item.detail = 'TypeScript details';
 			item.documentation = 'TypeScript documentation';

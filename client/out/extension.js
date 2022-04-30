@@ -11,8 +11,7 @@ function activate(context) {
     // The debug options for the server
     // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
     const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
-    // If the extension is launched in debug mode then the debug server options are used
-    // Otherwise the run options are used
+    // If the extension is launched in debug mode then the debug server options are used, otherwise the run options are used
     const serverOptions = {
         run: { module: serverModule, transport: node_1.TransportKind.ipc },
         debug: {
@@ -23,15 +22,18 @@ function activate(context) {
     };
     // Options to control the language client
     const clientOptions = {
-        // Register the server for plain text documents
-        documentSelector: [{ scheme: 'file', language: 'plaintext' }],
+        // Register the server for plain text documents or html
+        documentSelector: [
+            { scheme: 'file', language: 'plaintext' },
+            { scheme: 'file', language: 'html' }
+        ],
         synchronize: {
             // Notify the server about file changes to '.clientrc files contained in the workspace
             fileEvents: vscode_1.workspace.createFileSystemWatcher('**/.clientrc')
         }
     };
     // Create the language client and start the client.
-    client = new node_1.LanguageClient('languageServerExample', 'Language Server Example', serverOptions, clientOptions);
+    client = new node_1.LanguageClient('hclLanguageServer', 'html-chunk-loader Language Server', serverOptions, clientOptions);
     // Start the client. This will also launch the server
     client.start();
 }

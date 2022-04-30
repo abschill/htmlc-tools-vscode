@@ -1,6 +1,6 @@
 {
     "name": "hcl-lsp",
-    "description": "lsp for html chunk loader in vscode",
+    "description": "lang server/client for html chunk loader in vscode",
     "author": "abschill",
     "license": "MIT",
     "version": "1.0.0",
@@ -18,7 +18,8 @@
 		"vscode": "^1.63.0"
 	},
 	"activationEvents": [
-		"onLanguage:plaintext"
+		"onLanguage:plaintext",
+		"onlanguage:html"
 	],
     "contributes": {
       "configuration": {
@@ -31,6 +32,12 @@
             "default": 100,
             "description": "Controls the maximum number of problems produced by the server."
           },
+		  "hclLanguageServer.featureSupportVersion": {
+			"scope": "application",
+			"type": "array",
+			"default": [0,6,14],
+			"description": "Language Server Feature Version"
+		  },
           "languageServerExample.trace.server": {
             "scope": "window",
             "type": "string",

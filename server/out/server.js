@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_1 = require("vscode-languageserver/node");
-const tokens_1 = require("./tokens");
+const types_1 = require("./include/types");
+const tokens_1 = require("./include/tokens");
 const vscode_languageserver_textdocument_1 = require("vscode-languageserver-textdocument");
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -49,24 +50,21 @@ connection.onInitialized(() => {
         });
     }
 });
-// The global settings, used when the `workspace/configuration` request is not supported by the client.
-// Please note that this is not the case when using this server with the client provided in this example
-// but could happen with other clients.
-const defaultSettings = { maxNumberOfProblems: 1000 };
-let globalSettings = defaultSettings;
-// Cache the settings of all open documents
+let globalSettings = types_1.defaultSettings;
+// Cache the settings of all open documents to be less thicc ram
 const documentSettings = new Map();
 connection.onDidChangeConfiguration(change => {
     if (hasConfigurationCapability) {
-        // Reset all cached document settings
+        // clear cached settings
         documentSettings.clear();
     }
     else {
-        globalSettings = ((change.settings.languageServerExample || defaultSettings));
+        globalSettings = ((change.settings.languageServerExample || types_1.defaultSettings));
     }
     // Revalidate all open text documents
-    // documents.all().forEach(validateTextDocument);
+    documents.all().forEach(validateTextDocument);
 });
+// takes the context document in from the uri argument and gets the settings interface from above
 function getDocumentSettings(resource) {
     if (!hasConfigurationCapability) {
         return Promise.resolve(globalSettings);
@@ -81,66 +79,55 @@ function getDocumentSettings(resource) {
     }
     return result;
 }
-// Only keep settings for open documents
-documents.onDidClose(e => {
-    documentSettings.delete(e.document.uri);
-});
-// The content of a text document has changed. This event is emitted
+// close when done
+documents.onDidClose(e => documentSettings.delete(e.document.uri));
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent(change => {
-    validateTextDocument(change.document);
-});
+documents.onDidChangeContent(change => validateTextDocument(change.document));
 async function validateTextDocument(textDocument) {
     // In this simple example we get the settings for every validate run.
     const settings = await getDocumentSettings(textDocument.uri);
     let problems = 0;
-    let m;
     // The validator creates diagnostics for all uppercase words length 2 and more
     const text = textDocument.getText();
-    const pattern = tokens_1.EXT_TOKEN_MAP[1].signature;
     // iterate over tokens in tokens and set the meta related info based on constructed types from lib itself
     const diagnostics = [];
-    while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
-        problems++;
-        const diagnostic = {
-            severity: node_1.DiagnosticSeverity.Information,
-            range: {
-                start: textDocument.positionAt(m.index),
-                end: textDocument.positionAt(m.index + m[0].length)
-            },
-            message: tokens_1.EXT_TOKEN_MAP[1].diagnosticName,
-            source: `${tokens_1.EXT_TOKEN_MAP[1].signature}`
-        };
-        if (hasDiagnosticRelatedInformationCapability) {
-            diagnostic.relatedInformation = [
-                {
-                    location: {
-                        uri: textDocument.uri,
-                        range: Object.assign({}, diagnostic.range)
-                    },
-                    message: tokens_1.EXT_TOKEN_MAP[1].diagnosticMsg
+    for (const token of tokens_1.EXT_TOKEN_MAP) {
+        const pattern = token.signature;
+        const match = pattern.exec(text);
+        if (match && match.length > 0 && problems < settings.maxNumberOfProblems) {
+            problems++;
+            const diagnostic = {
+                severity: node_1.DiagnosticSeverity.Information,
+                range: {
+                    start: textDocument.positionAt(match.index),
+                    end: textDocument.positionAt(match.index + match[0].length)
                 },
-                {
-                    location: {
-                        uri: textDocument.uri,
-                        range: Object.assign({}, diagnostic.range)
+                message: token.diagnosticName,
+                source: `${token.signature}`
+            };
+            if (hasDiagnosticRelatedInformationCapability) {
+                diagnostic.relatedInformation = [
+                    {
+                        location: {
+                            uri: textDocument.uri,
+                            range: Object.assign({}, diagnostic.range)
+                        },
+                        message: token.diagnosticMsg
                     },
-                    message: tokens_1.EXT_TOKEN_MAP[1].detailMsg
-                }
-            ];
+                    {
+                        location: {
+                            uri: textDocument.uri,
+                            range: Object.assign({}, diagnostic.range)
+                        },
+                        message: token.detailMsg
+                    }
+                ];
+            }
+            diagnostics.push(diagnostic);
         }
-        diagnostics.push(diagnostic);
     }
-    // Send the computed diagnostics to VSCode.
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
-connection.onDidChangeWatchedFiles(_change => {
-    // Monitored files have change in VSCode
-    connection.console.log('We received an file change event');
-});
-connection.onDidOpenTextDocument((p) => {
-    connection.console.log(p.textDocument.text);
-});
 // This handler provides the initial list of the completion items.
 connection.onCompletion((_textDocumentPosition) => {
     // The pass parameter contains the position of the text document in
@@ -162,6 +149,7 @@ connection.onCompletion((_textDocumentPosition) => {
 // This handler resolves additional information for the item selected in
 // the completion list.
 connection.onCompletionResolve((item) => {
+    console.log(item);
     if (item.data === 1) {
         item.detail = 'TypeScript details';
         item.documentation = 'TypeScript documentation';
