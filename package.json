@@ -1,10 +1,13 @@
 {
-    "name": "hcl-lsp",
+    "name": "htmlc-tools",
     "description": "lang server/client for html chunk loader in vscode",
     "author": "abschill",
+	"publisher": "abschill",
     "license": "MIT",
-    "version": "1.0.0",
-    "keywords": [],
+    "version": "1.0.1",
+    "keywords": [
+		"html-chunk-loader"
+	],
     "scripts": {
       "vscode:prepublish": "npm run compile",
       "compile": "tsc -b",
@@ -15,7 +18,11 @@
     },
     "main": "./client/out/extension",
 	"engines": {
-		"vscode": "^1.63.0"
+		"vscode": "^1.66.0"
+	},
+	"repository":{
+		"type": "git",
+		"url": "https://github.com/abschill/hcl-lsp-vscode"
 	},
 	"activationEvents": [
 		"onLanguage:plaintext",

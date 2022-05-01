@@ -3,9 +3,6 @@ import {
     AST_RENDER_SIGNATURE,
     AST_PARTIAL_SIGNATURE,
     AST_LOOP_SIGNATURE,
-    AST_RENDER_REGGIE,
-    AST_PARTIAL_REGGIE,
-    AST_LOOP_OPEN_REGGIE,
 	AST_OPEN_SCOPE,
 	AST_DT
 } from 'html-chunk-loader/lib/compiler/parser/constants';
@@ -19,13 +16,13 @@ export type LintableToken = {
 
 export const EXT_TOKEN_MAP: LintableToken[] = [
 	{
-		signature: AST_RENDER_REGGIE,
+		signature: new RegExp(AST_RENDER_SIGNATURE),
 		diagnosticName: 'Render Matcher',
 		diagnosticMsg: 'html-chunk-loader value insertion directive(regex)',
 		detailMsg: 'loads a variable from your runtime/inline configuration to the template'
 	},
 	{
-		signature: AST_PARTIAL_REGGIE,
+		signature: new RegExp(AST_PARTIAL_SIGNATURE),
 		diagnosticName: 'Partial Matcher',
 		diagnosticMsg: 'html-chunk-loader partial',
 		detailMsg: 'loads a partial chunk from the configured path by name'

@@ -19,13 +19,13 @@ const constants_1 = require("html-chunk-loader/lib/compiler/parser/constants");
 __exportStar(require("html-chunk-loader/lib/compiler/parser/constants.js"), exports);
 exports.EXT_TOKEN_MAP = [
     {
-        signature: constants_1.AST_RENDER_REGGIE,
+        signature: new RegExp(constants_1.AST_RENDER_SIGNATURE),
         diagnosticName: 'Render Matcher',
         diagnosticMsg: 'html-chunk-loader value insertion directive(regex)',
         detailMsg: 'loads a variable from your runtime/inline configuration to the template'
     },
     {
-        signature: constants_1.AST_PARTIAL_REGGIE,
+        signature: new RegExp(constants_1.AST_PARTIAL_SIGNATURE),
         diagnosticName: 'Partial Matcher',
         diagnosticMsg: 'html-chunk-loader partial',
         detailMsg: 'loads a partial chunk from the configured path by name'

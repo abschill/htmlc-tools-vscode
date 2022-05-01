@@ -22,6 +22,7 @@ import {
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
 
+const ttPrefix = 'html-chunk-loader: ';
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
@@ -181,14 +182,19 @@ connection.onCompletion(
 		// info and always provide the same completion items.
 		return [
 			{
-				label: 'TypeScript',
-				kind: CompletionItemKind.Text,
+				label: '<!--@partial=-->',
+				kind: CompletionItemKind.Snippet,
 				data: 1
 			},
 			{
-				label: 'JavaScript',
-				kind: CompletionItemKind.Text,
+				label: '<!--@render=-->',
+				kind: CompletionItemKind.Snippet,
 				data: 2
+			},
+			{
+				label: '<!--@loop(){}-->',
+				kind: CompletionItemKind.Snippet,
+				data: 3
 			}
 		];
 	}
@@ -200,11 +206,11 @@ connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
 		console.log(item);
 		if (item.data === 1) {
-			item.detail = 'TypeScript details';
-			item.documentation = 'TypeScript documentation';
+			item.detail = `${ttPrefix} Partial`;
+			item.documentation = `${ttPrefix} @partial documentation`;
 		} else if (item.data === 2) {
-			item.detail = 'JavaScript details';
-			item.documentation = 'JavaScript documentation';
+			item.detail = `${ttPrefix} Render`;
+			item.documentation = `${ttPrefix} @render documentation`;
 		}
 		return item;
 	}

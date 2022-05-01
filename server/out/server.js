@@ -7,6 +7,7 @@ const vscode_languageserver_textdocument_1 = require("vscode-languageserver-text
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = (0, node_1.createConnection)(node_1.ProposedFeatures.all);
+const ttPrefix = 'html-chunk-loader: ';
 // Create a simple text document manager.
 const documents = new node_1.TextDocuments(vscode_languageserver_textdocument_1.TextDocument);
 let hasConfigurationCapability = false;
@@ -135,14 +136,19 @@ connection.onCompletion((_textDocumentPosition) => {
     // info and always provide the same completion items.
     return [
         {
-            label: 'TypeScript',
-            kind: node_1.CompletionItemKind.Text,
+            label: '<!--@partial=-->',
+            kind: node_1.CompletionItemKind.Snippet,
             data: 1
         },
         {
-            label: 'JavaScript',
-            kind: node_1.CompletionItemKind.Text,
+            label: '<!--@render=-->',
+            kind: node_1.CompletionItemKind.Snippet,
             data: 2
+        },
+        {
+            label: '<!--@loop(){}-->',
+            kind: node_1.CompletionItemKind.Snippet,
+            data: 3
         }
     ];
 });
@@ -151,12 +157,12 @@ connection.onCompletion((_textDocumentPosition) => {
 connection.onCompletionResolve((item) => {
     console.log(item);
     if (item.data === 1) {
-        item.detail = 'TypeScript details';
-        item.documentation = 'TypeScript documentation';
+        item.detail = `${ttPrefix} Partial`;
+        item.documentation = `${ttPrefix} @partial documentation`;
     }
     else if (item.data === 2) {
-        item.detail = 'JavaScript details';
-        item.documentation = 'JavaScript documentation';
+        item.detail = `${ttPrefix} Render`;
+        item.documentation = `${ttPrefix} @render documentation`;
     }
     return item;
 });
