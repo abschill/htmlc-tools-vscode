@@ -10,7 +10,7 @@
 	"publisher": "abschill",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/abschilly/htmlc-tools-vscode"
+		"url": "https://github.com/abschill/htmlc-tools-vscode"
 	},
 	"engines": {
 		"vscode": "^1.69.0"
