@@ -1,5 +1,3 @@
-# htmlc-tools
+# webpuppy-vscode
 
-[html-chunk-loader vscode extension+lang server](https://marketplace.visualstudio.com/items?itemName=abschill.htmlc-tools)
-
-extension for template lib
+[webpuppy](https://docs.webpuppy.io) extension for vscode

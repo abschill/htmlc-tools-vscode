@@ -1,0 +1,64 @@
+{
+	"colorizedBracketPairs": [
+		[
+			"@partial",
+			"="
+		],
+		[
+			"@render",
+			"="
+		],
+		[
+			"@loop",
+			"="
+		],
+		[
+			"(",
+			")"
+		],
+
+		[
+			"{",
+			"}"
+		],
+		[
+			"<!--",
+			"-->"
+		]
+	],
+	"comments": {
+	  "lineComment": "//",
+	  "blockComment": ["/*", "*/"]
+	},
+	"brackets": [
+		["<!--@htmlc|", "|@htmlc-->"],
+		["@render=", "-->"],
+		["@render=(", ")"],
+		["@loop=(", ")"],
+		["@partial=", "-->"],
+		["@partial=(", ")"]
+	],
+	"autoClosingPairs": [
+	  { "open": "{", "close": "}" },
+	  { "open": "[", "close": "]" },
+	  { "open": "(", "close": ")" },
+	  { "open": "'", "close": "'", "notIn": ["string", "comment"] },
+	  { "open": "\"", "close": "\"", "notIn": ["string"] },
+	  { "open": "`", "close": "`", "notIn": ["string", "comment"] },
+	  { "open": "/**", "close": " */", "notIn": ["string"] }
+	],
+	"autoCloseBefore": ";:.,=}])>` \n\t",
+	"surroundingPairs": [
+	  ["{", "}"],
+	  ["[", "]"],
+	  ["(", ")"],
+	  ["'", "'"],
+	  ["\"", "\""],
+	  ["`", "`"]
+	],
+	"wordPattern": "(<.*>)",
+	"indentationRules": {
+	  "increaseIndentPattern": "^((?!\\/\\/).)*(\\{[^}\"'`]*|\\([^)\"'`]*|\\[[^\\]\"'`]*)$",
+	  "decreaseIndentPattern": "^((?!.*?\\/\\*).*\\*/)?\\s*[\\}\\]].*$"
+	}
+}
