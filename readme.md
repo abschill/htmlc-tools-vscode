@@ -1,3 +1,3 @@
-# webpuppy-vscode
+# htmlc-tools
 
-[webpuppy](https://docs.webpuppy.io) extension for vscode
+[htmlc-tools](https://marketplace.visualstudio.com/items?itemName=abschill.htmlc-tools) extension for vscode
