@@ -2,7 +2,7 @@
 	"name": "htmlc-tools",
 	"displayName": "html chunk loader vscode",
 	"description": "htmlc vscode tooling",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"license": "ISC",
 	"author": {
 		"name": "abschill"
