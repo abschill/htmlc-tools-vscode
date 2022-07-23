@@ -2,8 +2,9 @@
 	"name": "htmlc-tools",
 	"displayName": "html chunk loader vscode",
 	"description": "htmlc vscode tooling",
-	"version": "2.0.3",
+	"version": "2.0.4",
 	"license": "ISC",
+	"icon": "images/wp_logo.png",
 	"author": {
 		"name": "abschill"
 	},
@@ -35,12 +36,17 @@
 				"filenamePatterns": [
 					".htmlcrc",
 					"hcl_config.*",
+					"hcl-config.*",
 					"htmlc.*"
 				],
 				"extensions": [
 					".htmlcrc"
 				],
 				"filenames": [
+					"hcl-config.js",
+					"hcl-config.json",
+					"hcl_config.js",
+					"hcl_config.json",
 					"htmlc.json",
 					".htmlcrc"
 				],
